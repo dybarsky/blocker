@@ -4,10 +4,10 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 
 ## Quick facts
 - Package / applicationId: `dybarsky.blocker`; Gradle root project `Blocker`, single module `:app`
-- Kotlin 2.3.0, AGP `9.0.0-rc03` (pre-release), Gradle wrapper in repo, Java 11 source/target
-- compileSdk/targetSdk 36, **minSdk 29** (required for `RoleManager` call-screening role)
-- UI: Jetpack Compose + Material3 (BOM 2026.01.00), Navigation Compose 2.9.6 (type-safe `@Serializable` routes), Lifecycle 2.10.0, Activity Compose 1.12.2
-- Persistence: Jetpack DataStore (`datastore-preferences` artifact, but used via `dataStore(...)` with a custom JSON `Serializer`) + kotlinx-serialization-json 1.9.0
+- Kotlin 2.4.21, AGP 9.5.1, Gradle wrapper 9.6.1 (needs JDK 17+; no system JDK on the dev machine → CLI builds need `JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`), Java 11 source/target
+- compileSdk 37 (required by current AndroidX libs), targetSdk 36, **minSdk 29** (required for `RoleManager` call-screening role)
+- UI: Jetpack Compose + Material3 (BOM 2026.09.00; `ui-tooling` versions come from the BOM), Navigation Compose 2.10.2 (type-safe `@Serializable` routes), Lifecycle 2.11.0, Activity Compose 1.13.0
+- Persistence: Jetpack DataStore 1.3.0 (core `datastore` artifact, used via `dataStore(...)` with a custom JSON `Serializer`) + kotlinx-serialization-json 1.12.0
 - No DI framework, no Room, no Hilt, no network. Tests are only the default templates (`ExampleUnitTest`, `ExampleInstrumentedTest`); JUnit 4 is the only test dependency.
 - Version catalog: `gradle/libs.versions.toml`
 - Build: `./gradlew assembleDebug`, install: `./gradlew installDebug`. Features must be verified on a device/emulator (call screening can't be unit-tested easily).

@@ -13,11 +13,11 @@ Suggested order: **1 → 2 → 3** (stabilize, upgrade with tests as a safety ne
 - [ ] **Housekeeping:** nearly every file shows as modified in git — check `git diff --stat` (line endings / permissions?), fix and commit; decide what to track in `.idea/`; review `allowBackup` and `res/xml/backup_rules.xml`.
 
 ## 2. Upgrade Gradle and libraries
-Current: Gradle wrapper 9.1.0, AGP `9.0.0-rc03` (pre-release), Kotlin 2.3.0, Compose BOM 2026.01.00, Navigation 2.9.6, Lifecycle 2.10.0, Activity 1.12.2, DataStore 1.2.0, kotlinx-serialization 1.9.0, core-ktx 1.17.0.
-- [ ] Move AGP from RC to the latest stable 9.0.x; bump the wrapper to the Gradle version AGP requires (`./gradlew wrapper --gradle-version <x>`); update Kotlin if compatible.
-- [ ] Bump the remaining entries in `gradle/libs.versions.toml` (look up latest versions at that time).
-- [ ] Drop the manual `1.10.1` pins for `ui-tooling` / `ui-tooling-preview` so they follow the BOM.
-- [ ] Replace `datastore-preferences` with `datastore` (core) — only a custom serializer is used.
+Current (upgraded): Gradle 9.6.1, AGP 9.5.1, Kotlin 2.4.21, Compose BOM 2026.09.00, compileSdk 37 (targetSdk still 36).
+- [x] Move AGP from RC to the latest stable 9.0.x; bump the wrapper to the Gradle version AGP requires (`./gradlew wrapper --gradle-version <x>`); update Kotlin if compatible.
+- [x] Bump the remaining entries in `gradle/libs.versions.toml` (look up latest versions at that time).
+- [x] Drop the manual `1.10.1` pins for `ui-tooling` / `ui-tooling-preview` so they follow the BOM.
+- [x] Replace `datastore-preferences` with `datastore` (core) — only a custom serializer is used.
 - [ ] Consider `isMinifyEnabled = true` for release and verify with R8.
 - [ ] After each bump run `./gradlew assembleDebug testDebugUnitTest` and fix deprecations.
 
