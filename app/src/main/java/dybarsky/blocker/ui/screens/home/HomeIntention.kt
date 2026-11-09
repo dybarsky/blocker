@@ -7,4 +7,6 @@ sealed interface HomeIntention : Intention {
     data class DeleteNumber(val id: Number.Id) : HomeIntention
     data class EditNumber(val id: Number.Id) : HomeIntention
     data object AddNumber : HomeIntention
+    data object Retry : HomeIntention
+    data object DismissError : HomeIntention
 }

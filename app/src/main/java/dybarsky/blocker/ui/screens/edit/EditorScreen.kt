@@ -21,11 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType.Companion.Phone
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dybarsky.blocker.BlockerApp
+import dybarsky.blocker.R
 import dybarsky.blocker.common.models.Number
 import dybarsky.blocker.ui.common.Callback
 import dybarsky.blocker.ui.screens.edit.EditorIntention.Close
@@ -72,14 +74,20 @@ fun EditorScreen(
                     // You can add a loading indicator here if needed
                 }
 
+                is EditorState.Error -> EditorScreenError(
+                    callback = callback,
+                    modifier = modifier,
+                )
+
                 is EditorState.Content -> EditorScreenContent(
                     mask = state.mask,
+                    saveFailed = state.saveFailed,
                     callback = callback,
                     modifier = modifier,
                 )
 
                 is EditorState.Saved -> {
-                    callback.submit(Close)
+                    LaunchedEffect(Unit) { callback.submit(Close) }
                 }
             }
         }
@@ -87,8 +95,29 @@ fun EditorScreen(
 }
 
 @Composable
+fun EditorScreenError(
+    callback: Callback<EditorIntention>,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.padding(24.dp)) {
+        Box(Modifier.padding(bottom = 24.dp)) {
+            Text(
+                text = stringResource(R.string.error_editor_load),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+        TextButton(
+            onClick = { callback.submit(Close) },
+            modifier = Modifier.align(Alignment.End),
+            content = { Text(stringResource(R.string.action_close)) },
+        )
+    }
+}
+
+@Composable
 fun EditorScreenContent(
     mask: String?,
+    saveFailed: Boolean,
     callback: Callback<EditorIntention>,
     modifier: Modifier = Modifier,
 ) {
@@ -106,6 +135,10 @@ fun EditorScreenContent(
             OutlinedTextField(
                 state = textFieldState,
                 keyboardOptions = KeyboardOptions(keyboardType = Phone),
+                isError = saveFailed,
+                supportingText = if (saveFailed) {
+                    { Text(stringResource(R.string.error_save)) }
+                } else null,
                 modifier = Modifier.focusRequester(focusRequester),
             )
         }

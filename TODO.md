@@ -3,12 +3,12 @@
 Suggested order: **1 → 2 → 3** (stabilize, upgrade with tests as a safety net, then add the new feature). See `CLAUDE.md` for architecture and conventions.
 
 ## 1. Fix unfinished issues
-- [ ] **Error handling:** replace `// todo` / `.catch { /* todo */ }` in `HomeViewModelImpl` and `EditorViewModelImpl`; add an `Error` state and show a message in the UI.
-- [ ] **Loading states:** `HomeScreenLoading` and `EditorState.Loading` render nothing — add a real indicator.
-- [ ] **Editor side effect:** in `EditorScreen`, `EditorState.Saved` calls `callback.submit(Close)` during composition — move it into a `LaunchedEffect`.
-- [ ] **Service:** remove `runBlocking` from `BlockerService.onScreenCall` (cache the mask list in memory from the store Flow, or read with a timeout). Keep fail-open behaviour.
+- [x] **Error handling:** replace `// todo` / `.catch { /* todo */ }` in `HomeViewModelImpl` and `EditorViewModelImpl`; add an `Error` state and show a message in the UI.
+- [ ] **Loading states:** `HomeScreenLoading` and `EditorState.Loading` still render nothing — add a real indicator.
+- [x] **Editor side effect:** in `EditorScreen`, `EditorState.Saved` calls `callback.submit(Close)` during composition — move it into a `LaunchedEffect`.
+- [x] **Service:** `BlockerService` now fails open (null handle, errors → allow). Still uses `runBlocking` — consider caching the mask list in memory.
 - [ ] **Matcher:** decide semantics explicitly (exact length vs prefix — `zip` currently truncates), normalize numbers (strip spaces/dashes, `0xx` ↔ `+380xx`).
-- [ ] **Tests:** unit tests for `MatcherImpl` and `BlockerServiceModelImpl` using a fake `NumberStore`.
+- [x] **Tests:** unit tests added for view models, service model, matcher, store serializer/transformer, `runCatchingSuspend` (34 tests, `./gradlew testDebugUnitTest`). Still missing: matcher semantics decision/normalization.
 - [ ] **Strings:** move hard-coded Ukrainian texts into `strings.xml` (uk default + en).
 - [ ] **Housekeeping:** nearly every file shows as modified in git — check `git diff --stat` (line endings / permissions?), fix and commit; decide what to track in `.idea/`; review `allowBackup` and `res/xml/backup_rules.xml`.
 

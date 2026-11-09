@@ -3,14 +3,11 @@ package dybarsky.blocker.ui.screens.edit
 import androidx.lifecycle.viewModelScope
 import dybarsky.blocker.common.components.NumberStore
 import dybarsky.blocker.common.models.Number
-import dybarsky.blocker.ui.screens.edit.EditorState.Loading
+import dybarsky.blocker.common.util.runCatchingSuspend
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EditorViewModelImpl(
@@ -18,40 +15,48 @@ class EditorViewModelImpl(
     private val store: NumberStore
 ) : EditorViewModel() {
 
-    override val stateFlow = MutableStateFlow<EditorState>(Loading)
+    private val state = MutableStateFlow<EditorState>(
+        if (id == null) EditorState.Content(mask = null) else EditorState.Loading
+    )
+
+    override val stateFlow: StateFlow<EditorState> = state
 
     init {
-        val flow = if (id == null) {
-            flowOf(null)
-        } else {
-            store.loadNumbers()
-                .mapNotNull { it.firstOrNull { item -> item.id == id } }
-                .map { it.mask }
-        }
-        viewModelScope.launch {
-            flow.map { EditorState.Content(it) }
-                .catch { /* todo */ }
-                .onEach { stateFlow.emit(it) }
-                .collect()
-        }
+        if (id != null) loadNumber(id)
     }
 
     override fun saveNumber(mask: String) {
         viewModelScope.launch {
             if (mask.isBlank()) {
-                stateFlow.emit(EditorState.Saved)
+                state.value = EditorState.Saved
                 return@launch
             }
-            runCatching {
-                val number = Number(
-                    id = id ?: Number.Id.New,
-                    mask = mask
-                )
-                store.saveNumber(number)
-                stateFlow.emit(EditorState.Saved)
+            setSaveFailed(false)
+            runCatchingSuspend {
+                store.saveNumber(Number(id = id ?: Number.Id.New, mask = mask))
+            }.onSuccess {
+                state.value = EditorState.Saved
             }.onFailure {
-                // todo
+                setSaveFailed(true)
             }
+        }
+    }
+
+    private fun loadNumber(id: Number.Id) {
+        viewModelScope.launch {
+            runCatchingSuspend {
+                store.loadNumbers().first().firstOrNull { it.id == id }
+            }.onSuccess { number ->
+                state.value = if (number != null) EditorState.Content(number.mask) else EditorState.Error
+            }.onFailure {
+                state.value = EditorState.Error
+            }
+        }
+    }
+
+    private fun setSaveFailed(failed: Boolean) {
+        state.update { current ->
+            if (current is EditorState.Content) current.copy(saveFailed = failed) else current
         }
     }
 }

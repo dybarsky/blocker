@@ -8,7 +8,7 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 - compileSdk 37 (required by current AndroidX libs), targetSdk 36, **minSdk 29** (required for `RoleManager` call-screening role)
 - UI: Jetpack Compose + Material3 (BOM 2026.09.00; `ui-tooling` versions come from the BOM), Navigation Compose 2.10.2 (type-safe `@Serializable` routes), Lifecycle 2.11.0, Activity Compose 1.13.0
 - Persistence: Jetpack DataStore 1.3.0 (core `datastore` artifact, used via `dataStore(...)` with a custom JSON `Serializer`) + kotlinx-serialization-json 1.12.0
-- No DI framework, no Room, no Hilt, no network. Tests are only the default templates (`ExampleUnitTest`, `ExampleInstrumentedTest`); JUnit 4 is the only test dependency.
+- No DI framework, no Room, no Hilt, no network. Unit tests live in `app/src/test` (JUnit 4 + coroutines-test); `ExampleInstrumentedTest` is still the default template.
 - Version catalog: `gradle/libs.versions.toml`
 - Build: `./gradlew assembleDebug`, install: `./gradlew installDebug`. Features must be verified on a device/emulator (call screening can't be unit-tested easily).
 
@@ -51,17 +51,20 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 - Non-Compose services reach dependencies through the `BlockerApp.instance.injection` singleton.
 - User-facing strings are **hard-coded Ukrainian** in composables (only `app_name` is in `strings.xml`): "Додати номер", "Редагувати номер", "Скасувати", "Зберегти", "Видалити", "Додати", "Активувати".
 
+## Error handling & testing
+- Errors are **state-based** (no one-off events): `HomeState.Error` (+ Retry), `HomeState.Content.deleteFailed` (Snackbar, then `DismissError`), `EditorState.Error`, `EditorState.Content.saveFailed` (error under the field). ViewModels hold no strings; texts live in `strings.xml` (`error_*`).
+- Use `runCatchingSuspend` (`common/util/Result.kt`) instead of `runCatching` in suspend code — it rethrows `CancellationException`.
+- `BlockerService` fails open: null handle, storage error or any exception → call is allowed. `NumberStoreImpl` resets a corrupt `numbers.json` to an empty list (`ReplaceFileCorruptionHandler`).
+- Unit tests (`app/src/test`, JUnit4 + `kotlinx-coroutines-test`): `testing/FakeNumberStore` (switches `failLoad/failSave/failDelete`), `testing/MainDispatcherRule` for `viewModelScope`. Run: `./gradlew testDebugUnitTest` (needs `JAVA_HOME` = Android Studio JBR).
+
 ## Known issues / TODOs (observed in code)
-- Error handling is stubbed: `// todo` / swallowed errors in `HomeViewModelImpl`, `EditorViewModelImpl` (`.catch { /* todo */ }`, `onFailure { // todo }`).
 - `EditorState.Loading` and `HomeScreenLoading` render nothing.
-- `BlockerService.onScreenCall` uses `runBlocking` on the DataStore read; failures in `shouldBlock` fail open (allow call).
-- `BlockerService` is `exported="true"` (needed for the screening role; protected by `BIND_SCREENING_SERVICE`).
-- `BlockerService` resolves its model in a field initializer via `BlockerApp.instance` (fine since the Application is created first).
-- `EditorState.Saved` triggers `callback.submit(Close)` directly during composition (side effect in composition; better as `LaunchedEffect`).
-- Matcher prefix/truncation semantics (see above) are undocumented/untested; no number normalization.
+- `BlockerService.onScreenCall` still uses `runBlocking` on the DataStore read.
+- Matcher prefix/truncation semantics are only documented by tests; no number normalization.
+- Most UI strings are still hard-coded Ukrainian (only `app_name` and `error_*`/`action_close` are in `strings.xml`).
 - Theme is dark-only (no light scheme, no dynamic color); `Typography` overrides only `bodyLarge`.
-- `isMinifyEnabled = false` for release; `allowBackup="true"` — the `numbers.json` list is included in backups by default (check `res/xml/backup_rules.xml`, `data_extraction_rules.xml`).
-- Git: single commit (`ab9894c 1`); most files appear as modified in the working tree (likely line-ending/permission churn or a regenerated tree), `.idea/` is partly tracked, `local.properties` exists locally.
+- `isMinifyEnabled = false` for release; `allowBackup="true"` — `numbers.json` is included in backups by default.
+- `di/ServiceModelFactory.kt` has an unchecked-cast warning.
 
 ## Ideas for extending
 - Add unit tests for `MatcherImpl` and `BlockerServiceModelImpl` (pure Kotlin, easy; fake `NumberStore`).

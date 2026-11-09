@@ -15,25 +15,36 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dybarsky.blocker.BlockerApp
+import dybarsky.blocker.R
 import dybarsky.blocker.common.models.Number
 import dybarsky.blocker.ui.common.Callback
 import dybarsky.blocker.ui.screens.home.HomeIntention.AddNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DeleteNumber
+import dybarsky.blocker.ui.screens.home.HomeIntention.DismissError
 import dybarsky.blocker.ui.screens.home.HomeIntention.EditNumber
+import dybarsky.blocker.ui.screens.home.HomeIntention.Retry
 
 @Composable
 fun HomeScreen(
@@ -48,6 +59,8 @@ fun HomeScreen(
             is DeleteNumber -> model.deleteNumber(intention.id)
             is EditNumber -> goToEditor(intention.id)
             is AddNumber -> goToEditor(null)
+            is Retry -> model.retry()
+            is DismissError -> model.dismissError()
         }
     }
     HomeScreen(state.value, callback, modifier)
@@ -61,7 +74,41 @@ fun HomeScreen(
 ) {
     when (state) {
         is HomeState.Loading -> HomeScreenLoading(modifier)
-        is HomeState.Content -> HomeScreenContent(state.data, callback, modifier)
+        is HomeState.Error -> HomeScreenError(callback, modifier)
+        is HomeState.Content -> HomeScreenContent(
+            data = state.data,
+            deleteFailed = state.deleteFailed,
+            callback = callback,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+fun HomeScreenError(
+    callback: Callback<HomeIntention>,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .padding(horizontal = 24.dp),
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = stringResource(R.string.error_load),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+            )
+            Button(onClick = { callback.submit(Retry) }) {
+                Text(stringResource(R.string.error_retry))
+            }
+        }
     }
 }
 
@@ -73,9 +120,18 @@ fun HomeScreenLoading(modifier: Modifier = Modifier) {
 @Composable
 fun HomeScreenContent(
     data: List<Number>,
+    deleteFailed: Boolean,
     callback: Callback<HomeIntention>,
     modifier: Modifier = Modifier,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val deleteErrorText = stringResource(R.string.error_delete)
+    LaunchedEffect(deleteFailed) {
+        if (deleteFailed) {
+            snackbarHostState.showSnackbar(deleteErrorText)
+            callback.submit(DismissError)
+        }
+    }
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = modifier
@@ -93,8 +149,14 @@ fun HomeScreenContent(
                 .background(MaterialTheme.colorScheme.surfaceBright)
                 .verticalScroll(rememberScrollState()),
         ) {
-            data.forEach { NumberItem(it, callback) }
+            data.forEach { NumberItem(it, deleteFailed, callback) }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 82.dp),
+        )
         Fab(callback, Modifier.align(Alignment.BottomCenter))
     }
 }
@@ -102,8 +164,11 @@ fun HomeScreenContent(
 @Composable
 fun NumberItem(
     number: Number,
+    deleteFailed: Boolean,
     callback: Callback<HomeIntention>,
 ) {
+    // Re-create the swipe state when a delete fails so the row snaps back.
+    key(deleteFailed) {
     SwipeToDismissBox(
         state = rememberSwipeToDismissBoxState(),
         enableDismissFromStartToEnd = false,
@@ -138,6 +203,7 @@ fun NumberItem(
             }
         },
     )
+    }
 }
 
 @Composable

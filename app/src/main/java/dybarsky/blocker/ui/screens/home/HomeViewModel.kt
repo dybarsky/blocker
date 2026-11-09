@@ -7,4 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 abstract class HomeViewModel : ViewModel() {
     abstract val stateFlow: StateFlow<HomeState>
     abstract fun deleteNumber(id: Number.Id)
+    abstract fun retry()
+    abstract fun dismissError()
 }

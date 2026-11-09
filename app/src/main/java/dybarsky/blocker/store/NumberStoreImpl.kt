@@ -2,6 +2,7 @@ package dybarsky.blocker.store
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
 import dybarsky.blocker.common.components.NumberStore
 import dybarsky.blocker.common.models.Number
@@ -12,7 +13,9 @@ class NumberStoreImpl(context: Context) : NumberStore {
 
     private val Context.dataStore: DataStore<List<Record>> by dataStore(
         fileName = "numbers.json",
-        serializer = RecordSerializer
+        serializer = RecordSerializer,
+        // A corrupt file resets to an empty list instead of failing every read forever.
+        corruptionHandler = ReplaceFileCorruptionHandler { emptyList() }
     )
     private val context = context.applicationContext
 

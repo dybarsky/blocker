@@ -7,16 +7,23 @@ import kotlinx.coroutines.runBlocking
 
 class BlockerService : CallScreeningService() {
 
-    private val serviceModel = BlockerApp
-        .instance
-        .injection
-        .serviceModelFactory
-        .obtain(BlockerServiceModel::class.java)
+    private val serviceModel by lazy {
+        BlockerApp
+            .instance
+            .injection
+            .serviceModelFactory
+            .obtain(BlockerServiceModel::class.java)
+    }
 
     override fun onScreenCall(callDetails: Call.Details) {
         val builder = CallResponse.Builder()
-        val number = callDetails.handle.schemeSpecificPart
-        val reject = runBlocking { serviceModel.shouldBlock(number) }
+        // Fail open: any problem (hidden number, storage error) must allow the call.
+        val reject = try {
+            val number = callDetails.handle?.schemeSpecificPart
+            runBlocking { serviceModel.shouldBlock(number) }
+        } catch (e: Exception) {
+            false
+        }
         val response = if (reject) builder.reject() else builder.allow()
         respondToCall(callDetails, response)
     }

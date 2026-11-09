@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Шахрай</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="error_load">Не вдалося завантажити список</string>
+    <string name="error_retry">Повторити</string>
+    <string name="error_delete">Не вдалося видалити номер</string>
+    <string name="error_save">Не вдалося зберегти</string>
+    <string name="error_editor_load">Не вдалося відкрити номер</string>
+    <string name="action_close">Закрити</string>
 </resources>

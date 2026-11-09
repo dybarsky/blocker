@@ -51,5 +51,6 @@ dependencies {
     implementation(libs.kotlinx.serialization)
     implementation(libs.androidx.compose.ui.tooling.preview)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
