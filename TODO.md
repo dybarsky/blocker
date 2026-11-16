@@ -4,13 +4,22 @@ Suggested order: **1 → 2 → 3** (stabilize, upgrade with tests as a safety ne
 
 ## 1. Fix unfinished issues
 - [x] **Error handling:** replace `// todo` / `.catch { /* todo */ }` in `HomeViewModelImpl` and `EditorViewModelImpl`; add an `Error` state and show a message in the UI.
-- [ ] **Loading states:** `HomeScreenLoading` and `EditorState.Loading` still render nothing — add a real indicator.
+- [x] **Loading states:** shared `LoadingIndicator` (spinner shown after 250 ms to avoid flicker) on Home and in the editor dialog.
 - [x] **Editor side effect:** in `EditorScreen`, `EditorState.Saved` calls `callback.submit(Close)` during composition — move it into a `LaunchedEffect`.
 - [x] **Service:** `BlockerService` now fails open (null handle, errors → allow). Still uses `runBlocking` — consider caching the mask list in memory.
-- [ ] **Matcher:** decide semantics explicitly (exact length vs prefix — `zip` currently truncates), normalize numbers (strip spaces/dashes, `0xx` ↔ `+380xx`).
+- [x] **Matcher:** `*` = any sequence, separators ignored, exact match without `*` (see `CLAUDE.md`). Follow-ups below.
 - [x] **Tests:** unit tests added for view models, service model, matcher, store serializer/transformer, `runCatchingSuspend` (34 tests, `./gradlew testDebugUnitTest`). Still missing: matcher semantics decision/normalization.
 - [ ] **Strings:** move hard-coded Ukrainian texts into `strings.xml` (uk default + en).
 - [ ] **Housekeeping:** nearly every file shows as modified in git — check `git diff --stat` (line endings / permissions?), fix and commit; decide what to track in `.idea/`; review `allowBackup` and `res/xml/backup_rules.xml`.
+
+### Matcher follow-ups
+- [ ] Treat leading `00` as `+` (`0049…` ≡ `+49…`) in mask and number.
+- [ ] Single-digit wildcard `#` (it is on the phone keyboard; `?` is not): `+38050#######`.
+- [ ] Hint under the editor field explaining `*` and that masks without it are exact.
+- [ ] Live preview in the editor ("matches +49 145 1234567?" test field) and a warning for over-broad masks (`*`, `+*`).
+- [ ] National-format masks (`0151*`) via a default country code setting.
+- [ ] Reject/flag invalid masks (letters, empty after normalization) and duplicates / masks covered by an existing one.
+- [ ] Optional allowlist that overrides blocks; optional "block unknown/hidden numbers".
 
 ## 2. Upgrade Gradle and libraries
 Current (upgraded): Gradle 9.6.1, AGP 9.5.1, Kotlin 2.4.21, Compose BOM 2026.09.00, compileSdk 37 (targetSdk still 36).

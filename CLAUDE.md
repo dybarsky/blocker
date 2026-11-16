@@ -20,12 +20,11 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 5. On an incoming call, the system binds `BlockerService` (`CallScreeningService`, permission `BIND_SCREENING_SERVICE`); it asks `BlockerServiceModel.shouldBlock(number)`, and responds with reject (`rejectCall`, `disallowCall`, `skipCallLog=false`, `skipNotification=true`) or plain allow.
 
 ### Mask matching (`domain/MatcherImpl.kt`)
-```kotlin
-text.zip(mask).all { (c, m) -> m == '*' || c == m }
-```
-- `*` = any single character; everything else literal. Number is `callDetails.handle.schemeSpecificPart` (as delivered, e.g. `+380...`).
-- **Gotcha:** `zip` truncates to the shorter string, so a mask shorter than the number acts as a *prefix* match (`+38050` blocks all `+38050...`), and a number shorter than the mask also matches if it's a prefix of the mask. A blank mask would match everything (the editor refuses to save blank masks — blank save just closes).
-- No normalization of formats (spaces, dashes, `0xx` vs `+380xx`); the mask must match the system-provided string.
+- `*` matches **any sequence of characters (including none)** anywhere in the mask: `+43*`, `+44165*`, `+49 145 *`, `+38050*4567`, `*`.
+- Whitespace and `-`, `(`, `)`, `.`, `/` are ignored in both mask and number (`+49 145 *` ≡ `+49145*`).
+- Without `*` the match is **exact and full-length** (`+43` does not block `+436641234567`). Empty/blank masks never match.
+- Implemented as an iterative glob matcher (no regex). Number is `callDetails.handle.schemeSpecificPart` as delivered by the system.
+- Not handled: `00…` → `+…`, national format (`0151…`) vs international (`+49151…`), `tel:` URL-encoding.
 
 ## Architecture
 Package root `app/src/main/java/dybarsky/blocker/`:
@@ -52,15 +51,15 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 - User-facing strings are **hard-coded Ukrainian** in composables (only `app_name` is in `strings.xml`): "Додати номер", "Редагувати номер", "Скасувати", "Зберегти", "Видалити", "Додати", "Активувати".
 
 ## Error handling & testing
+- Loading: `HomeState.Loading` / `EditorState.Loading` render `ui/common/LoadingIndicator` (spinner appears after 250 ms so fast local loads don't flash).
 - Errors are **state-based** (no one-off events): `HomeState.Error` (+ Retry), `HomeState.Content.deleteFailed` (Snackbar, then `DismissError`), `EditorState.Error`, `EditorState.Content.saveFailed` (error under the field). ViewModels hold no strings; texts live in `strings.xml` (`error_*`).
 - Use `runCatchingSuspend` (`common/util/Result.kt`) instead of `runCatching` in suspend code — it rethrows `CancellationException`.
 - `BlockerService` fails open: null handle, storage error or any exception → call is allowed. `NumberStoreImpl` resets a corrupt `numbers.json` to an empty list (`ReplaceFileCorruptionHandler`).
 - Unit tests (`app/src/test`, JUnit4 + `kotlinx-coroutines-test`): `testing/FakeNumberStore` (switches `failLoad/failSave/failDelete`), `testing/MainDispatcherRule` for `viewModelScope`. Run: `./gradlew testDebugUnitTest` (needs `JAVA_HOME` = Android Studio JBR).
 
 ## Known issues / TODOs (observed in code)
-- `EditorState.Loading` and `HomeScreenLoading` render nothing.
 - `BlockerService.onScreenCall` still uses `runBlocking` on the DataStore read.
-- Matcher prefix/truncation semantics are only documented by tests; no number normalization.
+- Matcher does not map `00` → `+` or national ↔ international formats (see TODO).
 - Most UI strings are still hard-coded Ukrainian (only `app_name` and `error_*`/`action_close` are in `strings.xml`).
 - Theme is dark-only (no light scheme, no dynamic color); `Typography` overrides only `bodyLarge`.
 - `isMinifyEnabled = false` for release; `allowBackup="true"` — `numbers.json` is included in backups by default.
