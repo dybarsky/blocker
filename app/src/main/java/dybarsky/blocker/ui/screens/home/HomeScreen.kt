@@ -5,24 +5,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -31,7 +23,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -40,19 +31,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dybarsky.blocker.BlockerApp
 import dybarsky.blocker.R
 import dybarsky.blocker.common.models.Number
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import dybarsky.blocker.ui.common.CardFab
+import dybarsky.blocker.ui.common.CardFabClearance
+import dybarsky.blocker.ui.common.ScreenCard
+import dybarsky.blocker.ui.common.ScreenContainer
 import dybarsky.blocker.ui.common.Callback
 import dybarsky.blocker.ui.common.LoadingIndicator
 import dybarsky.blocker.ui.screens.home.HomeIntention.AddNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DeleteNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DismissError
 import dybarsky.blocker.ui.screens.home.HomeIntention.EditNumber
-import dybarsky.blocker.ui.screens.home.HomeIntention.OpenLog
 import dybarsky.blocker.ui.screens.home.HomeIntention.Retry
 
 @Composable
 fun HomeScreen(
     goToEditor: (id: Number.Id?) -> Unit,
-    goToLog: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val factory = BlockerApp.instance.injection.viewModelFactory
@@ -64,7 +61,6 @@ fun HomeScreen(
             is EditNumber -> goToEditor(intention.id)
             is AddNumber -> goToEditor(null)
             is Retry -> model.retry()
-            is OpenLog -> goToLog()
             is DismissError -> model.dismissError()
         }
     }
@@ -94,24 +90,23 @@ fun HomeScreenError(
     callback: Callback<HomeIntention>,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-            .padding(horizontal = 24.dp),
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = stringResource(R.string.error_load),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-            )
-            Button(onClick = { callback.submit(Retry) }) {
-                Text(stringResource(R.string.error_retry))
+    ScreenContainer(modifier) {
+        ScreenCard {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 24.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.error_load),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                )
+                Button(onClick = { callback.submit(Retry) }) {
+                    Text(stringResource(R.string.error_retry))
+                }
             }
         }
     }
@@ -119,11 +114,9 @@ fun HomeScreenError(
 
 @Composable
 fun HomeScreenLoading(modifier: Modifier = Modifier) {
-    LoadingIndicator(
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
-    )
+    ScreenContainer(modifier) {
+        ScreenCard { LoadingIndicator(Modifier.fillMaxSize()) }
+    }
 }
 
 @Composable
@@ -141,38 +134,25 @@ fun HomeScreenContent(
             callback.submit(DismissError)
         }
     }
-    Box(
-        contentAlignment = Alignment.TopCenter,
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-            .padding(horizontal = 24.dp)
-            .padding(top = 12.dp, bottom = 32.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxSize()
-                .padding(top = 48.dp, bottom = 82.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceBright)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            data.forEach { NumberItem(it, deleteFailed, callback) }
-        }
-        TextButton(
-            onClick = { callback.submit(OpenLog) },
-            modifier = Modifier.align(Alignment.TopEnd),
-        ) {
-            Text(stringResource(R.string.log_open))
+    ScreenContainer(modifier) {
+        ScreenCard {
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                data.forEach { NumberItem(it, deleteFailed, callback) }
+                Spacer(Modifier.height(CardFabClearance))
+            }
         }
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 82.dp),
+                .padding(bottom = CardFabClearance),
         )
-        Fab(callback, Modifier.align(Alignment.BottomCenter))
+        CardFab(
+            icon = Icons.Default.Add,
+            contentDescription = stringResource(R.string.add_number),
+            onClick = { callback.submit(AddNumber) },
+            modifier = Modifier.align(Alignment.BottomEnd),
+        )
     }
 }
 
@@ -218,30 +198,5 @@ fun NumberItem(
             }
         },
     )
-    }
-}
-
-@Composable
-fun Fab(
-    callback: Callback<HomeIntention>,
-    modifier: Modifier = Modifier,
-) {
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = { callback.submit(AddNumber) }
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add"
-            )
-            Text(
-                text = "Додати"
-            )
-        }
     }
 }

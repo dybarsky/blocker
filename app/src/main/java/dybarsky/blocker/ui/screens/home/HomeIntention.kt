@@ -9,5 +9,4 @@ sealed interface HomeIntention : Intention {
     data object AddNumber : HomeIntention
     data object Retry : HomeIntention
     data object DismissError : HomeIntention
-    data object OpenLog : HomeIntention
 }

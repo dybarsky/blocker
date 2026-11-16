@@ -15,7 +15,7 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 ## How it works
 1. App starts in `BlockerActivity` → `MainScreen` (NavHost, start route `Roles`).
 2. `RoleScreen` checks `RoleManager.isRoleHeld(ROLE_CALL_SCREENING)`. If held, it pops itself and navigates to `Home`; otherwise shows an "Активувати" button that launches `createRequestRoleIntent(ROLE_CALL_SCREENING)`; on result it re-checks.
-3. `HomeScreen` lists masks (swipe end-to-start to delete, tap to edit, FAB "Додати" to add).
+3. `HomeScreen` ("Номери" tab) lists masks in a card (swipe end-to-start to delete, tap to edit); a round `+` FAB in the card's bottom-right corner adds one.
 4. `EditorScreen` is a navigation **dialog** (`dialog<Route.Editor>`) with a phone-keyboard text field; Save persists, Cancel closes.
 5. On an incoming call, the system binds `BlockerService` (`CallScreeningService`, permission `BIND_SCREENING_SERVICE`); it asks `BlockerServiceModel.screen(number)` for a `Verdict`, responds with reject (`rejectCall`, `disallowCall`, `skipCallLog=false`, `skipNotification=true`) or plain allow, and only **after responding** records blocked calls via `record(...)` (best effort; failures never change the outcome).
 
@@ -46,12 +46,13 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 - **MVI-ish UI**: each screen has `XState` (sealed interface), `XIntention : Intention` (sealed interface), abstract `XViewModel` exposing `stateFlow: StateFlow<XState>`, and `XViewModelImpl`. Screens come in two overloads: a stateful one (obtains ViewModel via `BlockerApp.instance.injection.viewModelFactory`, maps intentions to model calls/navigation) and a stateless one `(state, callback: Callback<Intention>, modifier)` for previews/testing.
 - Abstract class/interface + `Impl` pairing everywhere; wiring lives only in `di/`.
 - ViewModels get args via `CreationExtras` keys (e.g. `EditorViewModel.idKey`, `EditorViewModel.extras(id)`).
-- Navigation is type-safe: `Route.Home`, `Route.Roles`, `Route.Editor(id: Long?)`. Editor uses raw `Long?` in the route and converts to `Number.Id` in `Navigation.kt`.
+- Top-level navigation is a **centered floating pill bar used as tabs** (`ui/common/FloatingNavBar.kt`, Material 3 floating-toolbar style: selected tab = highlighted pill with icon + label, others = plain label), hosted in `MainScreen` over the `NavHost`. Tabs: `Route.Home` ("Номери") and `Route.Log` ("Журнал"); the bar is hidden on `Roles` and stays visible under the editor dialog (`controller.visibleEntries`). Switching tabs uses `popUpTo<Route.Home> { saveState }` + `restoreState`, so system back from Log returns to Home. There is **no top app bar**. Every top-level screen is built from `ui/common/ScreenCard.kt`: `ScreenContainer` (system bars, margins, room for the bar) → `ScreenCard` (the rounded card, identical size on all screens, also used for loading/error/empty states) plus overlays placed in the container (`SnackbarHost`, `CardFab` at `BottomEnd`; lists reserve `CardFabClearance` at their end). The official `FloatingToolbar` is not in stable Material3 1.4.0, hence the hand-built bar — swap it in when available.
+- Navigation is type-safe: `Route.Home`, `Route.Roles`, `Route.Log`, `Route.Editor(id: Long?)` (null id = new mask). Editor uses raw `Long?` in the route and converts to `Number.Id` in `Navigation.kt`.
 - Non-Compose services reach dependencies through the `BlockerApp.instance.injection` singleton.
 - User-facing strings are **hard-coded Ukrainian** in composables (only `app_name` is in `strings.xml`): "Додати номер", "Редагувати номер", "Скасувати", "Зберегти", "Видалити", "Додати", "Активувати".
 
 ## Call log
-- Blocked calls (number, matched mask, time) are stored in `calls.json` (newest first, max 200) and shown on `LogScreen` (Home → "Журнал"); clear asks for confirmation. Allowed calls are not logged.
+- Blocked calls (number, matched mask, time) are stored in `calls.json` (newest first, max 200) and shown on `LogScreen` ("Журнал" tab; a round delete FAB in the card corner asks for confirmation, hidden while the log is empty). Allowed calls are not logged.
 - `calls.json` is excluded from Auto Backup and device transfer (`res/xml/backup_rules.xml`, `data_extraction_rules.xml`, referenced from the manifest) because it contains caller numbers.
 
 ## Error handling & testing

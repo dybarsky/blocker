@@ -22,10 +22,7 @@ fun NavGraphBuilder.mainNavigationGraph(controller: NavController) {
     }
     composable<Route.Home> {
         HomeScreen(
-            goToEditor = {
-                controller.navigate(Route.Editor(it?.value))
-            },
-            goToLog = { controller.navigate(Route.Log) }
+            goToEditor = { controller.navigate(Route.Editor(it?.value)) },
         )
     }
     composable<Route.Log> {
