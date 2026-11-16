@@ -32,7 +32,7 @@ Current (upgraded): Gradle 9.6.1, AGP 9.5.1, Kotlin 2.4.21, Compose BOM 2026.09.
 
 ## 3. Call log (blocked-call history) — done
 - [x] `BlockedCall`, `CallLogStore` + `CallLogStoreImpl` (`calls.json`, newest first, capped at 200), `Verdict`-based `BlockerServiceModel.screen/record`, `LogScreen` (Home → "Журнал"), clear with confirmation, backup exclusion for `calls.json`.
-- [ ] Follow-ups: per-entry delete, optional notification for blocked calls, "unblock this mask" shortcut from an entry, relative timestamps / grouping by day, log retention by age, export.
+- [ ] Follow-ups: UI entry point for clearing the log (logic exists; confirmation dialog was removed with the delete FAB — see git history), per-entry delete, optional notification for blocked calls, "unblock this mask" shortcut from an entry, log retention by age, export.
 - Note: rejected calls also appear in the system call log (`skipCallLog = false`); the in-app log adds which mask matched.
 
 ## 4. Later ideas

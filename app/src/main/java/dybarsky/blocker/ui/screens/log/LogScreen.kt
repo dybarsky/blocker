@@ -1,22 +1,22 @@
 package dybarsky.blocker.ui.screens.log
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,12 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dybarsky.blocker.BlockerApp
 import dybarsky.blocker.R
 import dybarsky.blocker.common.models.BlockedCall
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import dybarsky.blocker.ui.common.CardFab
-import dybarsky.blocker.ui.common.CardFabClearance
 import dybarsky.blocker.ui.common.ScreenCard
 import dybarsky.blocker.ui.common.ScreenContainer
 import dybarsky.blocker.ui.common.Callback
@@ -43,6 +38,9 @@ import dybarsky.blocker.ui.screens.log.LogIntention.Clear
 import dybarsky.blocker.ui.screens.log.LogIntention.DismissError
 import dybarsky.blocker.ui.screens.log.LogIntention.Retry
 import java.text.DateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Date
 
 @Composable
@@ -66,7 +64,6 @@ fun LogScreen(
     callback: Callback<LogIntention>,
     modifier: Modifier = Modifier,
 ) {
-    var confirmClear by remember { mutableStateOf(false) }
     when (state) {
         is LogState.Loading -> ScreenContainer(modifier) {
             ScreenCard { LoadingIndicator(Modifier.fillMaxSize()) }
@@ -75,17 +72,7 @@ fun LogScreen(
         is LogState.Content -> LogScreenContent(
             state = state,
             callback = callback,
-            onClearClick = { confirmClear = true },
             modifier = modifier,
-        )
-    }
-    if (confirmClear) {
-        ClearLogDialog(
-            onConfirm = {
-                confirmClear = false
-                callback.submit(Clear)
-            },
-            onDismiss = { confirmClear = false },
         )
     }
 }
@@ -121,7 +108,6 @@ fun LogScreenError(
 fun LogScreenContent(
     state: LogState.Content,
     callback: Callback<LogIntention>,
-    onClearClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -144,11 +130,13 @@ fun LogScreenContent(
                         .padding(horizontal = 24.dp),
                 )
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = CardFabClearance),
-                ) {
-                    items(state.items) { call -> LogItem(call) }
+                val days = remember(state.items) { state.items.groupByDay() }
+                val today = remember(state.items) { LocalDate.now() }
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    days.forEach { day ->
+                        stickyHeader(key = day.date.toString()) { DayHeader(day.date, today) }
+                        items(day.calls) { call -> LogItem(call) }
+                    }
                 }
             }
         }
@@ -156,54 +144,56 @@ fun LogScreenContent(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = CardFabClearance),
+                .padding(bottom = 8.dp),
         )
-        if (state.items.isNotEmpty()) {
-            CardFab(
-                icon = Icons.Default.Delete,
-                contentDescription = stringResource(R.string.log_clear),
-                onClick = onClearClick,
-                modifier = Modifier.align(Alignment.BottomEnd),
-            )
-        }
     }
 }
 
 @Composable
-fun ClearLogDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.log_clear_title)) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) { Text(stringResource(R.string.log_clear)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
-        },
+fun DayHeader(date: LocalDate, today: LocalDate, modifier: Modifier = Modifier) {
+    val text = when (relativeDay(date, today)) {
+        RelativeDay.Today -> stringResource(R.string.log_today)
+        RelativeDay.Yesterday -> stringResource(R.string.log_yesterday)
+        RelativeDay.Other -> remember(date) {
+            date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+        }
+    }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceBright)
+            .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 4.dp),
     )
 }
 
 @Composable
 fun LogItem(call: BlockedCall, modifier: Modifier = Modifier) {
     val time = remember(call.timestamp) {
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(call.timestamp))
+        DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(call.timestamp))
     }
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 12.dp),
+            .padding(horizontal = 24.dp, vertical = 8.dp),
     ) {
-        Text(text = call.number, style = MaterialTheme.typography.titleLarge)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = call.number,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = time,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
         Text(
             text = stringResource(R.string.log_mask, call.mask),
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text(
-            text = time,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }

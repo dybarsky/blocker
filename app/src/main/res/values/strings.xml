@@ -9,13 +9,12 @@
     <string name="error_editor_load">Не вдалося відкрити номер</string>
     <string name="action_close">Закрити</string>
     <string name="log_title">Журнал</string>
+    <string name="log_today">Сьогодні</string>
+    <string name="log_yesterday">Вчора</string>
     <string name="log_empty">Заблокованих дзвінків ще немає</string>
-    <string name="log_clear">Очистити</string>
-    <string name="log_clear_title">Очистити журнал?</string>
     <string name="log_mask">Маска: %1$s</string>
     <string name="nav_masks">Номери</string>
     <string name="add_number">Додати номер</string>
-    <string name="action_cancel">Скасувати</string>
     <string name="error_log_load">Не вдалося завантажити журнал</string>
     <string name="error_clear_log">Не вдалося очистити журнал</string>
 </resources>
