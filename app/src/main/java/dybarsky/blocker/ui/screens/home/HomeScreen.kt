@@ -11,14 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -162,41 +167,81 @@ fun NumberItem(
     deleteFailed: Boolean,
     callback: Callback<HomeIntention>,
 ) {
+    var actionsOpen by remember { mutableStateOf(false) }
     // Re-create the swipe state when a delete fails so the row snaps back.
     key(deleteFailed) {
-    SwipeToDismissBox(
-        state = rememberSwipeToDismissBoxState(),
-        enableDismissFromStartToEnd = false,
-        onDismiss = { callback.submit(DeleteNumber(number.id)) },
-        content = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceBright)
-                    .clickable(onClick = { callback.submit(EditNumber(number.id)) })
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-            ) {
-                Text(
-                    text = number.mask,
-                    style = MaterialTheme.typography.displaySmall,
-                )
-            }
+        SwipeToDismissBox(
+            state = rememberSwipeToDismissBoxState(),
+            enableDismissFromStartToEnd = false,
+            onDismiss = { callback.submit(DeleteNumber(number.id)) },
+            content = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceBright)
+                        .clickable { actionsOpen = true }
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                ) {
+                    Text(
+                        text = number.mask,
+                        style = MaterialTheme.typography.displaySmall,
+                    )
+                    if (actionsOpen) {
+                        NumberActionsDialog(
+                            mask = number.mask,
+                            onEdit = {
+                                actionsOpen = false
+                                callback.submit(EditNumber(number.id))
+                            },
+                            onDelete = {
+                                actionsOpen = false
+                                callback.submit(DeleteNumber(number.id))
+                            },
+                            onDismiss = { actionsOpen = false },
+                        )
+                    }
+                }
+            },
+            backgroundContent = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                    contentAlignment = Alignment.CenterEnd,
+                ) {
+                    Text(
+                        text = stringResource(R.string.number_delete),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+        )
+    }
+}
+
+/** Shown on tap: the mask as title, with Edit / Delete actions. Outside tap or back closes it. */
+@Composable
+fun NumberActionsDialog(
+    mask: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(mask) },
+        confirmButton = {
+            TextButton(onClick = onEdit) { Text(stringResource(R.string.number_edit)) }
         },
-        backgroundContent = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
+        dismissButton = {
+            TextButton(onClick = onDelete) {
                 Text(
-                    text = "Видалити",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = stringResource(R.string.number_delete),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
         },
     )
-    }
 }

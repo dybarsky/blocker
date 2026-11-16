@@ -14,6 +14,8 @@
     <string name="log_empty">Заблокованих дзвінків ще немає</string>
     <string name="log_mask">Маска: %1$s</string>
     <string name="nav_masks">Номери</string>
+    <string name="number_edit">Редагувати</string>
+    <string name="number_delete">Видалити</string>
     <string name="add_number">Додати номер</string>
     <string name="error_log_load">Не вдалося завантажити журнал</string>
     <string name="error_clear_log">Не вдалося очистити журнал</string>

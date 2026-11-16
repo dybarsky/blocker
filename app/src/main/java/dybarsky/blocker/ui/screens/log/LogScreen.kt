@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -136,6 +138,7 @@ fun LogScreenContent(
                     days.forEach { day ->
                         stickyHeader(key = day.date.toString()) { DayHeader(day.date, today) }
                         items(day.calls) { call -> LogItem(call) }
+                        item(key = "gap-${day.date}") { Spacer(Modifier.height(DayGroupGap)) }
                     }
                 }
             }
@@ -148,6 +151,9 @@ fun LogScreenContent(
         )
     }
 }
+
+/** Extra space after the last call of a day, to visually separate day groups. */
+private val DayGroupGap = 16.dp
 
 @Composable
 fun DayHeader(date: LocalDate, today: LocalDate, modifier: Modifier = Modifier) {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
@@ -139,6 +140,8 @@ fun EditorScreenContent(
             OutlinedTextField(
                 state = textFieldState,
                 keyboardOptions = KeyboardOptions(keyboardType = Phone),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                textStyle = MaterialTheme.typography.titleLarge,
                 isError = saveFailed,
                 supportingText = if (saveFailed) {
                     { Text(stringResource(R.string.error_save)) }

@@ -15,7 +15,7 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 ## How it works
 1. App starts in `BlockerActivity` → `MainScreen` (NavHost, start route `Roles`).
 2. `RoleScreen` checks `RoleManager.isRoleHeld(ROLE_CALL_SCREENING)`. If held, it pops itself and navigates to `Home`; otherwise shows an "Активувати" button that launches `createRequestRoleIntent(ROLE_CALL_SCREENING)`; on result it re-checks.
-3. `HomeScreen` ("Номери" tab) lists masks in a card (swipe end-to-start to delete, tap to edit); a round `+` FAB in the card's bottom-right corner adds one.
+3. `HomeScreen` ("Номери" tab) lists masks in a card (tap a mask to open an Edit/Delete dialog; swipe end-to-start also deletes); a round `+` FAB in the card's bottom-right corner adds one.
 4. `EditorScreen` is a navigation **dialog** (`dialog<Route.Editor>`) with a phone-keyboard text field; Save persists, Cancel closes.
 5. On an incoming call, the system binds `BlockerService` (`CallScreeningService`, permission `BIND_SCREENING_SERVICE`); it asks `BlockerServiceModel.screen(number)` for a `Verdict`, responds with reject (`rejectCall`, `disallowCall`, `skipCallLog=false`, `skipNotification=true`) or plain allow, and only **after responding** records blocked calls via `record(...)` (best effort; failures never change the outcome).
 
