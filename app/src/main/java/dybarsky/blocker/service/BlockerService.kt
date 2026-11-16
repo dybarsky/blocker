@@ -17,15 +17,21 @@ class BlockerService : CallScreeningService() {
 
     override fun onScreenCall(callDetails: Call.Details) {
         val builder = CallResponse.Builder()
+        val number = callDetails.handle?.schemeSpecificPart
         // Fail open: any problem (hidden number, storage error) must allow the call.
-        val reject = try {
-            val number = callDetails.handle?.schemeSpecificPart
-            runBlocking { serviceModel.shouldBlock(number) }
+        val verdict = try {
+            runBlocking { serviceModel.screen(number) }
         } catch (e: Exception) {
-            false
+            Verdict.Allow
         }
-        val response = if (reject) builder.reject() else builder.allow()
+        val response = if (verdict is Verdict.Block) builder.reject() else builder.allow()
         respondToCall(callDetails, response)
+        // Log only after responding so the call is never delayed by (or dependent on) logging.
+        try {
+            runBlocking { serviceModel.record(number, verdict) }
+        } catch (e: Exception) {
+            // Logging is best effort.
+        }
     }
 
     private fun CallResponse.Builder.reject(): CallResponse {

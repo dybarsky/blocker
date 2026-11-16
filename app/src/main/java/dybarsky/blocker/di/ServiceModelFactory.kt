@@ -1,5 +1,6 @@
 package dybarsky.blocker.di
 
+import dybarsky.blocker.common.components.CallLogStore
 import dybarsky.blocker.common.components.Matcher
 import dybarsky.blocker.common.components.NumberStore
 import dybarsky.blocker.service.BlockerServiceModel
@@ -11,6 +12,7 @@ interface ServiceModelFactory {
 
 fun serviceModelFactory(
     store: NumberStore,
+    callLog: CallLogStore,
     matcher: Matcher
 ) = object : ServiceModelFactory {
 
@@ -19,6 +21,7 @@ fun serviceModelFactory(
             BlockerServiceModel::class.java -> {
                 return BlockerServiceModelImpl(
                     store = store,
+                    callLog = callLog,
                     matcher = matcher
                 ) as T
             }

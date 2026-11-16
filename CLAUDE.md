@@ -17,7 +17,7 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 2. `RoleScreen` checks `RoleManager.isRoleHeld(ROLE_CALL_SCREENING)`. If held, it pops itself and navigates to `Home`; otherwise shows an "Активувати" button that launches `createRequestRoleIntent(ROLE_CALL_SCREENING)`; on result it re-checks.
 3. `HomeScreen` lists masks (swipe end-to-start to delete, tap to edit, FAB "Додати" to add).
 4. `EditorScreen` is a navigation **dialog** (`dialog<Route.Editor>`) with a phone-keyboard text field; Save persists, Cancel closes.
-5. On an incoming call, the system binds `BlockerService` (`CallScreeningService`, permission `BIND_SCREENING_SERVICE`); it asks `BlockerServiceModel.shouldBlock(number)`, and responds with reject (`rejectCall`, `disallowCall`, `skipCallLog=false`, `skipNotification=true`) or plain allow.
+5. On an incoming call, the system binds `BlockerService` (`CallScreeningService`, permission `BIND_SCREENING_SERVICE`); it asks `BlockerServiceModel.screen(number)` for a `Verdict`, responds with reject (`rejectCall`, `disallowCall`, `skipCallLog=false`, `skipNotification=true`) or plain allow, and only **after responding** records blocked calls via `record(...)` (best effort; failures never change the outcome).
 
 ### Mask matching (`domain/MatcherImpl.kt`)
 - `*` matches **any sequence of characters (including none)** anywhere in the mask: `+43*`, `+44165*`, `+49 145 *`, `+38050*4567`, `*`.
@@ -32,14 +32,14 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 | Package | Contents |
 |---|---|
 | `BlockerApp.kt` | `Application`; static `instance`; lazy `Injection` |
-| `common/models` | `Number(id: Id, mask: String)`; `Number.Id` is a `@JvmInline value class` over `Long`, `Id.New = -1` |
-| `common/components` | Interfaces: `NumberStore` (save/delete/`loadNumbers(): Flow<List<Number>>`), `Matcher` |
+| `common/models` | `BlockedCall(number, mask, timestamp)`; `Number(id: Id, mask: String)`; `Number.Id` is a `@JvmInline value class` over `Long`, `Id.New = -1` |
+| `common/components` | Interfaces: `NumberStore` (save/delete/`loadNumbers(): Flow<List<Number>>`), `CallLogStore` (`add`/`clear`/`loadCalls()` newest first), `Matcher` |
 | `domain` | `MatcherImpl` |
-| `store` | `NumberStoreImpl` (DataStore file `numbers.json`), `Record` (serializable DTO `{id, mask}`), `RecordSerializer` (JSON list ↔ DataStore), `RecordTransformer` (`Record.asNumber()`, `Number.asRecord()`; new id = `currentTimeMillis()`) |
+| `store` | `NumberStoreImpl` (DataStore file `numbers.json`), `CallLogStoreImpl` (`calls.json`, capped at 200 entries, see `CallRecord.kt`), `JsonListSerializer` (generic JSON-list DataStore serializer; `RecordSerializer` delegates to it), `Record` (serializable DTO `{id, mask}`), `RecordSerializer` (JSON list ↔ DataStore), `RecordTransformer` (`Record.asNumber()`, `Number.asRecord()`; new id = `currentTimeMillis()`) |
 | `di` | `Injection` (manual DI, lazy `store` & `matcher`), `viewModelFactory(store)` (Lifecycle `initializer`s for `HomeViewModel`, `EditorViewModel`), `serviceModelFactory(store, matcher)` |
-| `service` | `BlockerService`, `BlockerServiceModel` (abstract), `BlockerServiceModelImpl` |
+| `service` | `BlockerService`, `BlockerServiceModel` (abstract: `screen(phone): Verdict`, `record(phone, verdict)`), `BlockerServiceModelImpl`, `Verdict` (`Allow` / `Block(mask)`) |
 | `ui/common` | `Intention` marker, `Callback<E : Intention>` fun interface (`submit(event)`) |
-| `ui/screens/{home,edit,role,main}` | Screens, ViewModels, states, intentions, navigation (`Route`, `Navigation.kt`, `MainScreen`) |
+| `ui/screens/{home,edit,log,role,main}` | Screens, ViewModels, states, intentions, navigation (`Route`, `Navigation.kt`, `MainScreen`) |
 | `ui/theme` | Dark-only Material3 scheme (`Color.kt`, `Scheme.kt`, `Theme.kt`, `Type.kt`) |
 
 ### Conventions
@@ -49,6 +49,10 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 - Navigation is type-safe: `Route.Home`, `Route.Roles`, `Route.Editor(id: Long?)`. Editor uses raw `Long?` in the route and converts to `Number.Id` in `Navigation.kt`.
 - Non-Compose services reach dependencies through the `BlockerApp.instance.injection` singleton.
 - User-facing strings are **hard-coded Ukrainian** in composables (only `app_name` is in `strings.xml`): "Додати номер", "Редагувати номер", "Скасувати", "Зберегти", "Видалити", "Додати", "Активувати".
+
+## Call log
+- Blocked calls (number, matched mask, time) are stored in `calls.json` (newest first, max 200) and shown on `LogScreen` (Home → "Журнал"); clear asks for confirmation. Allowed calls are not logged.
+- `calls.json` is excluded from Auto Backup and device transfer (`res/xml/backup_rules.xml`, `data_extraction_rules.xml`, referenced from the manifest) because it contains caller numbers.
 
 ## Error handling & testing
 - Loading: `HomeState.Loading` / `EditorState.Loading` render `ui/common/LoadingIndicator` (spinner appears after 250 ms so fast local loads don't flash).

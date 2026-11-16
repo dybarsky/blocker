@@ -11,5 +11,8 @@ sealed interface Route {
     data object Roles : Route
 
     @Serializable
+    data object Log : Route
+
+    @Serializable
     data class Editor(val id: Long? = null) : Route
 }

@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -45,11 +46,13 @@ import dybarsky.blocker.ui.screens.home.HomeIntention.AddNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DeleteNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DismissError
 import dybarsky.blocker.ui.screens.home.HomeIntention.EditNumber
+import dybarsky.blocker.ui.screens.home.HomeIntention.OpenLog
 import dybarsky.blocker.ui.screens.home.HomeIntention.Retry
 
 @Composable
 fun HomeScreen(
     goToEditor: (id: Number.Id?) -> Unit,
+    goToLog: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val factory = BlockerApp.instance.injection.viewModelFactory
@@ -61,6 +64,7 @@ fun HomeScreen(
             is EditNumber -> goToEditor(intention.id)
             is AddNumber -> goToEditor(null)
             is Retry -> model.retry()
+            is OpenLog -> goToLog()
             is DismissError -> model.dismissError()
         }
     }
@@ -149,12 +153,18 @@ fun HomeScreenContent(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxSize()
-                .padding(bottom = 82.dp)
+                .padding(top = 48.dp, bottom = 82.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surfaceBright)
                 .verticalScroll(rememberScrollState()),
         ) {
             data.forEach { NumberItem(it, deleteFailed, callback) }
+        }
+        TextButton(
+            onClick = { callback.submit(OpenLog) },
+            modifier = Modifier.align(Alignment.TopEnd),
+        ) {
+            Text(stringResource(R.string.log_open))
         }
         SnackbarHost(
             hostState = snackbarHostState,
