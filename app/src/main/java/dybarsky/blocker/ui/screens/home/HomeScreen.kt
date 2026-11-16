@@ -40,6 +40,7 @@ import dybarsky.blocker.BlockerApp
 import dybarsky.blocker.R
 import dybarsky.blocker.common.models.Number
 import dybarsky.blocker.ui.common.Callback
+import dybarsky.blocker.ui.common.LoadingIndicator
 import dybarsky.blocker.ui.screens.home.HomeIntention.AddNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DeleteNumber
 import dybarsky.blocker.ui.screens.home.HomeIntention.DismissError
@@ -114,7 +115,11 @@ fun HomeScreenError(
 
 @Composable
 fun HomeScreenLoading(modifier: Modifier = Modifier) {
-
+    LoadingIndicator(
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
+    )
 }
 
 @Composable

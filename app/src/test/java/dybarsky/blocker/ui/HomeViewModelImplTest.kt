@@ -23,6 +23,28 @@ class HomeViewModelImplTest {
     }
 
     @Test
+    fun beforeStoreEmits_isLoading_thenContent() {
+        store.holdLoad = true
+        val model = HomeViewModelImpl(store)
+        assertEquals(HomeState.Loading, model.stateFlow.value)
+        store.release()
+        assertEquals(HomeState.Content(items), model.stateFlow.value)
+    }
+
+    @Test
+    fun retry_goesThroughLoading() {
+        store.failLoad = true
+        val model = HomeViewModelImpl(store)
+        assertEquals(HomeState.Error, model.stateFlow.value)
+        store.failLoad = false
+        store.holdLoad = true
+        model.retry()
+        assertEquals(HomeState.Loading, model.stateFlow.value)
+        store.release()
+        assertEquals(HomeState.Content(items), model.stateFlow.value)
+    }
+
+    @Test
     fun loadFailure_emitsError() {
         store.failLoad = true
         assertEquals(HomeState.Error, HomeViewModelImpl(store).stateFlow.value)

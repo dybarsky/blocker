@@ -3,6 +3,7 @@ package dybarsky.blocker.ui.screens.edit
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -30,6 +31,7 @@ import dybarsky.blocker.BlockerApp
 import dybarsky.blocker.R
 import dybarsky.blocker.common.models.Number
 import dybarsky.blocker.ui.common.Callback
+import dybarsky.blocker.ui.common.LoadingIndicator
 import dybarsky.blocker.ui.screens.edit.EditorIntention.Close
 import dybarsky.blocker.ui.screens.edit.EditorIntention.Save
 
@@ -70,9 +72,11 @@ fun EditorScreen(
             tonalElevation = AlertDialogDefaults.TonalElevation,
         ) {
             when (state) {
-                is EditorState.Loading -> {
-                    // You can add a loading indicator here if needed
-                }
+                is EditorState.Loading -> LoadingIndicator(
+                    modifier = modifier
+                        .defaultMinSize(minWidth = 280.dp, minHeight = 160.dp)
+                        .padding(24.dp),
+                )
 
                 is EditorState.Error -> EditorScreenError(
                     callback = callback,

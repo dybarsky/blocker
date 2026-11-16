@@ -30,6 +30,22 @@ class EditorViewModelImplTest {
     }
 
     @Test
+    fun existingNumber_isLoadingUntilStoreEmits() {
+        store.holdLoad = true
+        val model = EditorViewModelImpl(Number.Id(1), store)
+        assertEquals(EditorState.Loading, model.stateFlow.value)
+        store.release()
+        assertEquals(EditorState.Content("111"), model.stateFlow.value)
+    }
+
+    @Test
+    fun newNumber_neverLoads() {
+        store.holdLoad = true
+        val model = EditorViewModelImpl(null, store)
+        assertEquals(EditorState.Content(null), model.stateFlow.value)
+    }
+
+    @Test
     fun unknownId_emitsError() {
         val model = EditorViewModelImpl(Number.Id(99), store)
         assertEquals(EditorState.Error, model.stateFlow.value)
