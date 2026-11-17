@@ -127,6 +127,89 @@ class MatcherImplTest {
         assertMatches("+43*", " +436641234567 ")
     }
 
+    // --- International prefix: 00 == + ---------------------------------------------------------
+
+    @Test
+    fun doubleZeroMask_matchesPlusNumber() {
+        assertMatches("0049 145 *", "+49145123")
+        assertMatches("0049145123", "+49145123")
+        assertNoMatch("0049 145 *", "+49151123")
+    }
+
+    @Test
+    fun plusMask_matchesDoubleZeroNumber() {
+        assertMatches("+49145*", "0049145123")
+        assertMatches("+49 145 *", "00 49 145 123")
+        assertNoMatch("+49145*", "0049151123")
+    }
+
+    @Test
+    fun doubleZeroMask_matchesDoubleZeroNumber() {
+        assertMatches("0049145*", "0049145123")
+        assertNoMatch("0049145*", "0049151123")
+    }
+
+    @Test
+    fun doubleZeroWithSeparators() {
+        assertMatches("00 49 (145) *", "+49145123")
+        assertMatches("00-49-(145)-*", "0049 145 123")
+        assertMatches("(00) 49 *", "+4912")
+    }
+
+    @Test
+    fun onlyLeadingDoubleZeroIsInternationalPrefix() {
+        assertMatches("+4900*", "+49001")
+        assertNoMatch("+4900*", "+49 1")
+        assertMatches("+4900*", "004900") // number's leading 00 -> +4900
+        assertNoMatch("+49*", "+0049") // +0049 is not 0049...
+    }
+
+    @Test
+    fun doubleZeroInTheMiddle_isLiteral() {
+        assertMatches("+1*00*", "+1 500 12")
+        assertNoMatch("+1*00*", "+1 5 12")
+        assertNoMatch("1*00", "+100") // no leading 00, no plus
+    }
+
+    @Test
+    fun nationalFormat_isNotMappedToInternational() {
+        assertNoMatch("0151*", "+49151123")
+        assertNoMatch("+49151*", "0151123")
+        assertMatches("0151*", "0151123")
+    }
+
+    @Test
+    fun singleLeadingZero_isLiteral() {
+        assertMatches("0*", "0151123")
+        assertNoMatch("0*", "+49151123")
+        assertNoMatch("0", "00")
+        assertMatches("0", "0")
+    }
+
+    @Test
+    fun doubleZeroAlone_isJustPlus() {
+        assertMatches("00", "+")
+        assertMatches("+", "00")
+        assertMatches("00", "00")
+        assertNoMatch("00", "+49145123")
+        assertNoMatch("00", "0")
+        assertNoMatch("00", "000")
+    }
+
+    @Test
+    fun doubleZeroWildcard_matchesAllInternationalNumbers() {
+        assertMatches("00*", "+49145123")
+        assertMatches("00*", "0049145123")
+        assertNoMatch("00*", "0151123")
+        assertNoMatch("00*", "112")
+    }
+
+    @Test
+    fun tripleZero_keepsTheThirdZero() {
+        assertMatches("000*", "+0123")
+        assertNoMatch("000*", "+123")
+    }
+
     // --- Edge cases ----------------------------------------------------------------------------
 
     @Test

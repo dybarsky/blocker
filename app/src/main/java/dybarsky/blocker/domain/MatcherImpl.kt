@@ -12,6 +12,9 @@ import dybarsky.blocker.common.components.Matcher
  *   (`+43*`, `+38050*4567`, `*`).
  * - Everything else is literal and the whole number must match: a mask without `*`
  *   is an exact match (`+43` does NOT match `+436641234567`; use `+43*`).
+ * - A leading `00` (after stripping formatting) is the international prefix and equals `+`, in both
+ *   the mask and the number: `0049 145 *` matches `+49145123` and `+49145*` matches `0049145123`.
+ *   Only the leading `00` is replaced (`+4900…` is untouched). National format (`0151…`) is not mapped.
  * - A mask or number that is empty after normalization never matches.
  */
 class MatcherImpl : Matcher {
@@ -23,7 +26,10 @@ class MatcherImpl : Matcher {
         return matches(pattern, number)
     }
 
-    private fun normalize(value: String): String = value.filterNot { it in IGNORED || it.isWhitespace() }
+    private fun normalize(value: String): String {
+        val stripped = value.filterNot { it in IGNORED || it.isWhitespace() }
+        return if (stripped.startsWith(INTERNATIONAL_PREFIX)) "+" + stripped.substring(INTERNATIONAL_PREFIX.length) else stripped
+    }
 
     /** Iterative glob matching with single-point backtracking: O(pattern * number) worst case. */
     private fun matches(pattern: String, text: String): Boolean {
@@ -55,5 +61,6 @@ class MatcherImpl : Matcher {
     private companion object {
         const val WILDCARD = '*'
         const val IGNORED = "-()./"
+        const val INTERNATIONAL_PREFIX = "00"
     }
 }

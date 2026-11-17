@@ -13,7 +13,7 @@ Suggested order: **1 → 2 → 3** (stabilize, upgrade with tests as a safety ne
 - [ ] **Housekeeping:** nearly every file shows as modified in git — check `git diff --stat` (line endings / permissions?), fix and commit; decide what to track in `.idea/`; review `allowBackup` (backup rules now exist and exclude `calls.json`; `numbers.json` is still backed up).
 
 ### Matcher follow-ups
-- [ ] Treat leading `00` as `+` (`0049…` ≡ `+49…`) in mask and number.
+- [x] Treat leading `00` as `+` (`0049…` ≡ `+49…`) in mask and number.
 - [ ] Single-digit wildcard `#` (it is on the phone keyboard; `?` is not): `+38050#######`.
 - [ ] Hint under the editor field explaining `*` and that masks without it are exact.
 - [ ] Live preview in the editor ("matches +49 145 1234567?" test field) and a warning for over-broad masks (`*`, `+*`).

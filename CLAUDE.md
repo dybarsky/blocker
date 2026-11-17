@@ -24,7 +24,8 @@ Android app that rejects incoming calls whose number matches a user-defined mask
 - Whitespace and `-`, `(`, `)`, `.`, `/` are ignored in both mask and number (`+49 145 *` ≡ `+49145*`).
 - Without `*` the match is **exact and full-length** (`+43` does not block `+436641234567`). Empty/blank masks never match.
 - Implemented as an iterative glob matcher (no regex). Number is `callDetails.handle.schemeSpecificPart` as delivered by the system.
-- Not handled: `00…` → `+…`, national format (`0151…`) vs international (`+49151…`), `tel:` URL-encoding.
+- A leading `00` (after stripping separators) is treated as `+` in both mask and number: `0049 145 *` ≡ `+49145*`, matching `+49145123` and `0049145123`. Only the very first `00` is mapped (`+4900…` untouched; `00` alone ≡ `+`; `00*` ≡ `+*`).
+- Not handled: national format (`0151…`) vs international (`+49151…`), `tel:` URL-encoding.
 
 ## Architecture
 Package root `app/src/main/java/dybarsky/blocker/`:
@@ -69,7 +70,7 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 
 ## Known issues / TODOs (observed in code)
 - `BlockerService.onScreenCall` still uses `runBlocking` on the DataStore read.
-- Matcher does not map `00` → `+` or national ↔ international formats (see TODO).
+- Matcher does not map national ↔ international formats (see TODO).
 - Most UI strings are still hard-coded Ukrainian (only `app_name` and `error_*`/`action_close` are in `strings.xml`).
 - Theme is dark-only (no light scheme, no dynamic color); `Typography` overrides only `bodyLarge`.
 - `allowBackup="true"` — `numbers.json` is included in backups by default.
