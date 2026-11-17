@@ -19,3 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# No app-specific keep rules are required: kotlinx-serialization, Navigation, DataStore
+# and AndroidX provide consumer rules, and the manifest keeps BlockerService.
+# Re-verify the release build after adding new @Serializable types or reflection.

@@ -63,12 +63,16 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 - `BlockerService` fails open: null handle, storage error or any exception → call is allowed. `NumberStoreImpl` resets a corrupt `numbers.json` to an empty list (`ReplaceFileCorruptionHandler`).
 - Unit tests (`app/src/test`, JUnit4 + `kotlinx-coroutines-test`): `testing/FakeNumberStore` (switches `failLoad/failSave/failDelete`), `testing/MainDispatcherRule` for `viewModelScope`. Run: `./gradlew testDebugUnitTest` (needs `JAVA_HOME` = Android Studio JBR).
 
+## Release build (R8)
+- `release` has `isMinifyEnabled = true` + `isShrinkResources = true`. No custom keep rules are needed: kotlinx-serialization, Navigation (type-safe routes), DataStore and AndroidX ship consumer rules, and the manifest keeps `BlockerService`. `app/proguard-rules.pro` is intentionally empty of rules. Verified: `assembleRelease` clean, and the release APK (re-signed with the debug key) loads masks, call log and the editor dialog on an emulator. Re-verify after adding new `@Serializable` types or reflection.
+- `assembleRelease` produces an unsigned APK (no signing config).
+
 ## Known issues / TODOs (observed in code)
 - `BlockerService.onScreenCall` still uses `runBlocking` on the DataStore read.
 - Matcher does not map `00` → `+` or national ↔ international formats (see TODO).
 - Most UI strings are still hard-coded Ukrainian (only `app_name` and `error_*`/`action_close` are in `strings.xml`).
 - Theme is dark-only (no light scheme, no dynamic color); `Typography` overrides only `bodyLarge`.
-- `isMinifyEnabled = false` for release; `allowBackup="true"` — `numbers.json` is included in backups by default.
+- `allowBackup="true"` — `numbers.json` is included in backups by default.
 - `di/ServiceModelFactory.kt` has an unchecked-cast warning.
 
 ## Ideas for extending

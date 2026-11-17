@@ -27,7 +27,7 @@ Current (upgraded): Gradle 9.6.1, AGP 9.5.1, Kotlin 2.4.21, Compose BOM 2026.09.
 - [x] Bump the remaining entries in `gradle/libs.versions.toml` (look up latest versions at that time).
 - [x] Drop the manual `1.10.1` pins for `ui-tooling` / `ui-tooling-preview` so they follow the BOM.
 - [x] Replace `datastore-preferences` with `datastore` (core) — only a custom serializer is used.
-- [ ] Consider `isMinifyEnabled = true` for release and verify with R8.
+- [x] `isMinifyEnabled = true` + `isShrinkResources = true` for release, verified with R8 (no extra keep rules needed).
 - [ ] After each bump run `./gradlew assembleDebug testDebugUnitTest` and fix deprecations.
 
 ## 3. Call log (blocked-call history) — done
