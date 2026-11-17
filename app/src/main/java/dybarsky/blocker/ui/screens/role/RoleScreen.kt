@@ -19,8 +19,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import dybarsky.blocker.R
 
 @Composable
 fun RoleScreen(
@@ -56,12 +58,12 @@ fun RoleScreenContent(callback: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Для коректної роботи додатку необхідно активувати його як блокувальник викликів.",
+                text = stringResource(R.string.role_description),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
             )
             Button(onClick = callback) {
-                Text("Активувати")
+                Text(stringResource(R.string.role_activate))
             }
         }
     }

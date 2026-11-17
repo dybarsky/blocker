@@ -132,7 +132,7 @@ fun EditorScreenContent(
     Column(modifier = modifier.padding(24.dp)) {
         Box(Modifier.padding(bottom = 16.dp)) {
             Text(
-                text = if (mask == null) "Додати номер" else "Редагувати номер",
+                text = stringResource(if (mask == null) R.string.add_number else R.string.number_edit_title),
                 style = MaterialTheme.typography.titleLarge,
             )
         }
@@ -152,11 +152,11 @@ fun EditorScreenContent(
         Row(modifier = Modifier.align(Alignment.End)) {
             TextButton(
                 onClick = { callback.submit(Close)},
-                content = { Text("Скасувати") },
+                content = { Text(stringResource(R.string.action_cancel)) },
             )
             TextButton(
                 onClick = { callback.submit(Save(textFieldState.text.toString())) },
-                content = { Text("Зберегти") },
+                content = { Text(stringResource(R.string.action_save)) },
             )
         }
     }

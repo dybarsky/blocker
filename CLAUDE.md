@@ -51,7 +51,7 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 - Top-level navigation is a **centered floating pill bar used as tabs** (`ui/common/FloatingNavBar.kt`, Material 3 floating-toolbar style: selected tab = highlighted pill with icon + label, others = plain label), hosted in `MainScreen` over the `NavHost`. Tabs: `Route.Home` ("Номери") and `Route.Log` ("Журнал"); the bar is hidden on `Roles` and stays visible under the editor dialog (`controller.visibleEntries`). Switching tabs uses `popUpTo<Route.Home> { saveState }` + `restoreState`, so system back from Log returns to Home. There is **no top app bar**. Every top-level screen is built from `ui/common/ScreenCard.kt`: `ScreenContainer` (system bars, margins, room for the bar) → `ScreenCard` (the rounded card, identical size on all screens, also used for loading/error/empty states) plus overlays placed in the container (`SnackbarHost`, `CardFab` at `BottomEnd` (currently only Home uses it); lists reserve `CardFabClearance` at their end). The official `FloatingToolbar` is not in stable Material3 1.4.0, hence the hand-built bar — swap it in when available.
 - Navigation is type-safe: `Route.Home`, `Route.Roles`, `Route.Log`, `Route.Editor(id: Long?)` (null id = new mask). Editor uses raw `Long?` in the route and converts to `Number.Id` in `Navigation.kt`.
 - Non-Compose services reach dependencies through the `BlockerApp.instance.injection` singleton.
-- User-facing strings are **hard-coded Ukrainian** in composables (only `app_name` is in `strings.xml`): "Додати номер", "Редагувати номер", "Скасувати", "Зберегти", "Видалити", "Додати", "Активувати".
+- User-facing strings live in `res/values/strings.xml` (**Ukrainian is the default**) with an English translation in `res/values-en/strings.xml`; composables use `stringResource(R.string.x)`, composed texts use format args (`log_mask` = `Маска: %1$s`), never concatenation. Every new string needs both files (lint `MissingTranslation` is an error). Dates in the log use the locale-aware `DateTimeFormatter.ofLocalizedDate`. `app_name` is "Шахрай" / "Shakhrai" (en).
 
 ## Call log
 - Blocked calls (number, matched mask, time) are stored in `calls.json` (newest first, max 200) and shown on `LogScreen` ("Журнал" tab), grouped by local calendar day with sticky headers (Сьогодні / Вчора / date; grouping logic in `ui/screens/log/LogGrouping.kt`). Rows show number + time, with the mask in smaller text below. Clearing exists in the logic (`LogIntention.Clear` → `LogViewModel.clear()` → `CallLogStore.clear()`, with a `clearFailed` snackbar) but has **no UI entry point right now**. Allowed calls are not logged.
@@ -71,13 +71,13 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 ## Known issues / TODOs (observed in code)
 - `BlockerService.onScreenCall` still uses `runBlocking` on the DataStore read.
 - Matcher does not map national ↔ international formats (see TODO).
-- Most UI strings are still hard-coded Ukrainian (only `app_name` and `error_*`/`action_close` are in `strings.xml`).
+- Only a uk default + en translation exist; no other locales and no per-app language picker (`locales_config.xml`).
 - Theme is dark-only (no light scheme, no dynamic color); `Typography` overrides only `bodyLarge`.
 - `allowBackup="true"` — `numbers.json` is included in backups by default.
 - `di/ServiceModelFactory.kt` has an unchecked-cast warning.
 
 ## Ideas for extending
 - Add unit tests for `MatcherImpl` and `BlockerServiceModelImpl` (pure Kotlin, easy; fake `NumberStore`).
-- Move strings to `strings.xml` (uk + en) and add proper error/empty/loading states.
+- Add more locales / a per-app language setting (uk + en are done).
 - Normalize numbers (strip spaces/dashes, handle national vs international format) before matching.
 - Consider block logging/notification, import/export of masks, and a light theme.

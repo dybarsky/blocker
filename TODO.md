@@ -9,7 +9,7 @@ Suggested order: **1 → 2 → 3** (stabilize, upgrade with tests as a safety ne
 - [x] **Service:** `BlockerService` now fails open (null handle, errors → allow). Still uses `runBlocking` — consider caching the mask list in memory.
 - [x] **Matcher:** `*` = any sequence, separators ignored, exact match without `*` (see `CLAUDE.md`). Follow-ups below.
 - [x] **Tests:** unit tests added for view models, service model, matcher, store serializer/transformer, `runCatchingSuspend` (34 tests, `./gradlew testDebugUnitTest`). Still missing: matcher semantics decision/normalization.
-- [ ] **Strings:** move hard-coded Ukrainian texts into `strings.xml` (uk default + en).
+- [x] **Strings:** all texts moved into `strings.xml` (uk default) + `values-en/strings.xml`.
 - [ ] **Housekeeping:** nearly every file shows as modified in git — check `git diff --stat` (line endings / permissions?), fix and commit; decide what to track in `.idea/`; review `allowBackup` (backup rules now exist and exclude `calls.json`; `numbers.json` is still backed up).
 
 ### Matcher follow-ups

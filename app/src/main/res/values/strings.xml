@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Шахрай</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="loading">Завантаження…</string>
     <string name="error_load">Не вдалося завантажити список</string>
     <string name="error_retry">Повторити</string>
@@ -8,6 +8,11 @@
     <string name="error_save">Не вдалося зберегти</string>
     <string name="error_editor_load">Не вдалося відкрити номер</string>
     <string name="action_close">Закрити</string>
+    <string name="action_cancel">Скасувати</string>
+    <string name="action_save">Зберегти</string>
+    <string name="role_description">Для коректної роботи додатку необхідно активувати його як блокувальник викликів.</string>
+    <string name="role_activate">Активувати</string>
+    <string name="number_edit_title">Редагувати номер</string>
     <string name="log_title">Журнал</string>
     <string name="log_today">Сьогодні</string>
     <string name="log_yesterday">Вчора</string>
