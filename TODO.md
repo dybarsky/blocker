@@ -40,4 +40,5 @@ Current (upgraded): Gradle 9.6.1, AGP 9.5.1, Kotlin 2.4.21, Compose BOM 2026.09.
 - [ ] Import / export of masks
 - [ ] Notification toggle for blocked calls
 - [ ] Allowlist
-- [ ] Compose previews and UI tests
+- [x] Compose previews (`*Previews.kt`, see `CLAUDE.md`)
+- [ ] UI tests (Compose UI tests for the stateless screens)

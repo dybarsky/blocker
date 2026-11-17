@@ -45,6 +45,7 @@ Package root `app/src/main/java/dybarsky/blocker/`:
 
 ### Conventions
 - **MVI-ish UI**: each screen has `XState` (sealed interface), `XIntention : Intention` (sealed interface), abstract `XViewModel` exposing `stateFlow: StateFlow<XState>`, and `XViewModelImpl`. Screens come in two overloads: a stateful one (obtains ViewModel via `BlockerApp.instance.injection.viewModelFactory`, maps intentions to model calls/navigation) and a stateless one `(state, callback: Callback<Intention>, modifier)` for previews/testing.
+- **Compose previews**: live in a sibling `*Previews.kt` next to each screen (`HomePreviews.kt`, `LogPreviews.kt`, `EditorPreviews.kt`, `RolePreviews.kt`, `ui/common/CommonPreviews.kt` for `FloatingNavBar`/`ScreenCard`+`CardFab`). They are `private`, call the stateless overloads with a no-op `Callback` and fixed sample data, and use the shared `@ScreenPreview` annotation + `PreviewFrame` (app theme + `Surface`) from `ui/common/PreviewSupport.kt`. `LogPreviews` builds timestamps relative to today because `LogScreen` uses `LocalDate.now()`. Add previews for new screens/states the same way.
 - Abstract class/interface + `Impl` pairing everywhere; wiring lives only in `di/`.
 - ViewModels get args via `CreationExtras` keys (e.g. `EditorViewModel.idKey`, `EditorViewModel.extras(id)`).
 - The app is dark-only: `themes.xml` uses a dark parent with transparent bars and `windowLightStatusBar=false`, and `BlockerActivity` calls `enableEdgeToEdge(SystemBarStyle.dark(...))` so status/navigation bar icons are always light regardless of the system theme.
