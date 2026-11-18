@@ -1,10 +1,18 @@
 import com.android.sdklib.AndroidVersion.VersionCodes.CINNAMON_BUN
 import com.android.sdklib.AndroidVersion.VersionCodes.Q
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
+}
+
+// Release signing config comes from a gitignored keystore.properties (see keystore.properties.example).
+// Without it, release builds stay unsigned so debug/CI builds keep working.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
 }
 
 android {
@@ -18,13 +26,31 @@ android {
         minSdk = Q
         targetSdk = CINNAMON_BUN
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystoreProperties.containsKey("storeFile")) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
+    // Drop the Google-signed dependency metadata block (not needed for a no-SDK personal app).
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
