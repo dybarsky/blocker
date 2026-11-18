@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Themed (Android 13+) icon: the shield is opaque, the handset halves and the slash
+  are cut out of it. A vector can't subtract shapes, so the cut is built from clip
+  regions: the two half-planes either side of the slash band carry the handset hole,
+  the band itself carries the slash hole. The clips overlap by ~1.5 units so no
+  anti-aliasing seam shows. Geometry matches ic_launcher_foreground.xml.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.95"
+        android:scaleY="0.95">
+        <!-- one side of the slash band: shield with the handset as a hole -->
+        <group>
+            <clip-path android:pathData="M0,-1L110,109L110,-10L0,-10Z" />
+            <path
+                android:fillColor="#FFFFFF"
+                android:fillType="evenOdd"
+                android:pathData="M54,24L80,32L80,54C80,70 69,80 54,87C39,80 28,70 28,54L28,32ZM64.76,49.58C61.88,55.24 57.24,59.86 51.58,62.76L47.18,58.36C46.64,57.82 45.84,57.64 45.14,57.88C42.9,58.62 40.48,59.02 38,59.02C36.9,59.02 36,59.92 36,61.02L36,68C36,69.1 36.9,70 38,70C56.78,70 72,54.78 72,36C72,34.9 71.1,34 70,34L63,34C61.9,34 61,34.9 61,36C61,38.5 60.6,40.9 59.86,43.14C59.64,43.84 59.8,44.62 60.36,45.18L64.76,49.58Z" />
+        </group>
+        <!-- other side -->
+        <group>
+            <clip-path android:pathData="M-10,3L100,113L-10,113Z" />
+            <path
+                android:fillColor="#FFFFFF"
+                android:fillType="evenOdd"
+                android:pathData="M54,24L80,32L80,54C80,70 69,80 54,87C39,80 28,70 28,54L28,32ZM64.76,49.58C61.88,55.24 57.24,59.86 51.58,62.76L47.18,58.36C46.64,57.82 45.84,57.64 45.14,57.88C42.9,58.62 40.48,59.02 38,59.02C36.9,59.02 36,59.92 36,61.02L36,68C36,69.1 36.9,70 38,70C56.78,70 72,54.78 72,36C72,34.9 71.1,34 70,34L63,34C61.9,34 61,34.9 61,36C61,38.5 60.6,40.9 59.86,43.14C59.64,43.84 59.8,44.62 60.36,45.18L64.76,49.58Z" />
+        </group>
+        <!-- the band: solid shield with the slash cut out -->
+        <group>
+            <clip-path android:pathData="M-10,-12.485L110,107.515L110,124.485L-10,4.485Z" />
+            <path
+                android:fillColor="#FFFFFF"
+                android:fillType="evenOdd"
+                android:pathData="M54,24L80,32L80,54C80,70 69,80 54,87C39,80 28,70 28,54L28,32ZM37.94,40.06L65.94,68.06A2.75,2.75 0 0 1 62.06,71.94L34.06,43.94A2.75,2.75 0 0 1 37.94,40.06Z" />
+        </group>
+    </group>
+</vector>
