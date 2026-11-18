@@ -1,0 +1,34 @@
+Scam Call Blocker automatically rejects incoming calls from phone numbers that match masks you define. If you keep getting calls from numbers that start the same way, for example +44165, add the mask +44165* once and those calls are rejected before your phone rings.
+
+IMPORTANT: this app does not detect scams by itself. It has no spam database and no automatic analysis. It only blocks the numbers that match the masks you add, so you decide what is blocked.
+
+HOW MASKS WORK
+• * stands for any digits (including none). +44165* matches every number that starts with +44165.
+• * can be anywhere in the mask: +38050*4567 matches numbers that start with +38050 and end with 4567.
+• Without *, the number must match exactly and in full. +43 does not block +436641234567.
+• Spaces, dashes, dots, slashes and brackets are ignored, so +49 145 * is the same as +49145*.
+• A leading 00 counts as +, so 0049 145 * is the same as +49145*.
+• Masks are compared with the number exactly as your phone delivers it. If callers sometimes show up as 050… and sometimes as +38050…, add a mask for each form.
+• Calls with a hidden number are not blocked.
+
+HOW TO USE
+1. Open the app and tap Activate to set it as your call screening app (see below).
+2. Tap + and enter a mask, for example +44165*. Tap a mask later to edit or delete it.
+3. Incoming calls that match a mask are rejected automatically.
+4. Open the Log tab to see which calls were blocked, when, and which mask matched. Calls are grouped by day.
+
+WHY THE APP ASKS TO BE YOUR CALL SCREENING APP
+Android only lets an app reject calls if you choose it as your call screening app. The app asks for this once, through the standard Android system dialog, and uses it for one thing: checking the caller's number against your masks. It does not ask for access to your contacts, your call history, or any phone permission. Android decides which calls it passes to a call screening app, and calls from your saved contacts may not be passed to the app. You can switch to another call screening app at any time in Android settings.
+
+PRIVACY
+• Everything stays on your device. The app has no internet permission and does not send anything anywhere.
+• No account, no sign-up, no ads, no analytics.
+• Your masks are stored on your phone. They may be included in Android's automatic backup if you have it turned on, so they can come back when you set up a new phone.
+• The log of blocked calls is stored only on your phone and is not part of backups. It keeps the 200 most recent entries.
+
+DETAILS
+• Works on Android 10 and newer.
+• Dark interface. Available in Ukrainian and English.
+• Blocked calls appear in the app's Log tab. The app does not show its own notification for them.
+
+The app only rejects calls that match your masks, so choose them carefully: a very broad mask such as * would match every number.

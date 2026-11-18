@@ -1,0 +1,4 @@
+First release.
+• Reject incoming calls from numbers that match your masks, for example +44165*.
+• Log of blocked calls, grouped by day.
+• Everything stays on your device. No internet, no accounts.
