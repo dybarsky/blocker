@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Шахрай</string>
+    <string name="app_name">Блокувальник</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="loading">Завантаження…</string>
     <string name="error_load">Не вдалося завантажити список</string>
