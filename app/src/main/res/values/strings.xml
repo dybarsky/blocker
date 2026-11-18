@@ -24,4 +24,6 @@
     <string name="add_number">Додати номер</string>
     <string name="error_log_load">Не вдалося завантажити журнал</string>
     <string name="error_clear_log">Не вдалося очистити журнал</string>
+    <!-- onboarding -->
+    <string name="role_purpose">Додаток автоматично відхиляє дзвінки з номерів, що збігаються з масками, які ви задасте, наприклад +44165*. Символ * замінює будь-які цифри.</string>
 </resources>
