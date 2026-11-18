@@ -57,11 +57,21 @@ fun RoleScreenContent(callback: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(42.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = stringResource(R.string.role_description),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.role_purpose),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = stringResource(R.string.role_description),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                )
+            }
             Button(onClick = callback) {
                 Text(stringResource(R.string.role_activate))
             }

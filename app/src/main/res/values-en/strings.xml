@@ -23,4 +23,6 @@
     <string name="add_number">Add number</string>
     <string name="error_log_load">Couldn\'t load the log</string>
     <string name="error_clear_log">Couldn\'t clear the log</string>
+    <!-- onboarding -->
+    <string name="role_purpose">The app automatically rejects calls from numbers that match the masks you define, for example +44165*. The * symbol stands for any digits.</string>
 </resources>
