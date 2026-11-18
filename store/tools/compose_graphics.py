@@ -19,8 +19,8 @@ FONT_REG = "/System/Library/Fonts/Supplemental/Arial.ttf"
 
 BG = (17, 19, 24)          # app background
 CARD = (55, 57, 62)        # app card
-TEAL = (63, 191, 174)      # icon shield
-SALMON = (255, 128, 120)   # icon slash
+TEAL = (56, 178, 190)      # icon tile teal, lightened for dark backgrounds
+SALMON = (255, 255, 255)      # icon badge (white)
 TEXT = (232, 234, 237)
 MUTED = (160, 166, 175)
 

@@ -1,7 +1,5 @@
 # Privacy Policy / Політика конфіденційності
 
-DRAFT. Host it yourself at a public URL and put that URL into Play Console. Replace every `TODO`. Not legal advice.
-
 - [English](#english)
 - [Українська](#українська)
 
@@ -10,9 +8,9 @@ DRAFT. Host it yourself at a public URL and put that URL into Play Console. Repl
 ## English
 
 **App:** Scam Call Blocker – Masks (launcher name: Call Blocker), package `dybarsky.blocker`
-**Developer:** TODO: your name
-**Contact:** TODO: your email
-**Effective date:** TODO: date of first release
+**Developer:** Maksym Dybarskyy
+**Contact:** maxim.dybarskyy@gmail.com
+**Effective date:** 18 November 2026
 
 ### Summary
 
@@ -40,7 +38,6 @@ The app does not share data with third parties, does not sell data and does not 
 
 - Delete a single mask in the app (tap it, then Delete).
 - Delete all app data: Android Settings, Apps, the app, Storage, Clear storage; or uninstall the app. This removes the masks and the call log from the device. Backups you made with Android stay in your Google account until you delete them there.
-- TODO if you ship a "clear log" button: say that the log can also be cleared in the app.
 
 ### Children
 
@@ -52,16 +49,16 @@ If this policy changes, the new version will be published at the same address wi
 
 ### Contact
 
-TODO: your email
+maxim.dybarskyy@gmail.com
 
 ---
 
 ## Українська
 
 **Додаток:** Блокувальник шахраїв: маски (назва на екрані: Блокувальник), пакет `dybarsky.blocker`
-**Розробник:** TODO: ваше ім'я
-**Контакт:** TODO: ваша електронна пошта
-**Діє з:** TODO: дата першого випуску
+**Розробник:** Maksym Dybarskyy
+**Контакт:** maxim.dybarskyy@gmail.com
+**Діє з:** 18 листопада 2026
 
 ### Коротко
 
@@ -89,7 +86,6 @@ TODO: your email
 
 - Щоб видалити одну маску, торкніться її в додатку й оберіть «Видалити».
 - Щоб видалити всі дані додатка: Налаштування Android, Додатки, цей додаток, Пам'ять, Очистити пам'ять; або видаліть додаток. Це прибере з пристрою маски та журнал дзвінків. Резервні копії, створені Android, залишаються у вашому обліковому записі Google, доки ви не видалите їх там.
-- TODO: якщо додасте кнопку очищення журналу, згадайте, що журнал можна очистити й у додатку.
 
 ### Діти
 
@@ -101,4 +97,4 @@ TODO: your email
 
 ### Контакт
 
-TODO: ваша електронна пошта
+maxim.dybarskyy@gmail.com
