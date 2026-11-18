@@ -1,5 +1,7 @@
 # TODO — upcoming tasks
 
+> Open items below are superseded by [docs/ROADMAP.md](docs/ROADMAP.md) (prioritized plan: before 1.0 / 1.1 / later). Checked items stay here as history.
+
 Suggested order: **1 → 2 → 3** (stabilize, upgrade with tests as a safety net, then add the new feature). See `CLAUDE.md` for architecture and conventions.
 
 ## 1. Fix unfinished issues
